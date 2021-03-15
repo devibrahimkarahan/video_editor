@@ -84,7 +84,7 @@ class VideoEditorController extends ChangeNotifier {
   ///Get the [Rotation Degrees]
   int get rotation => _rotation;
 
-  ///Get the `VideoPlayerController.value.initialized`
+  ///Get the `VideoPlayerController.value.isInitialized`
   bool get initialized => _video.value.isInitialized;
 
   ///Get the `VideoPlayerController.value.isPlaying`
