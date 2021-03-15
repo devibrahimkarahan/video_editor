@@ -29,10 +29,13 @@ dependencies:
   video_editor:
     path: ../
 
-  helpers: ^1.0.7
-  cupertino_icons: ^1.0.1
-  gallery_saver: ^2.0.1
-  image_picker: ^0.6.7+14
+  helpers: ^1.1.0+1
+  cupertino_icons: ^1.0.2
+  gallery_saver:
+    git:
+      url: https://github.com/devibrahimkarahan/gallery_saver.git
+      ref: 40c25f940948e2be519683c894d0457b34a5667a
+  image_picker: ^0.7.2+1
 
 dev_dependencies:
   flutter_test:
