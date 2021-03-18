@@ -1,11 +1,14 @@
+import 'dart:async';
 import 'dart:io';
-import 'package:path/path.dart' as path;
+
 import 'package:flutter/material.dart';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:flutter_ffmpeg/statistics.dart';
+import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
 import 'package:video_editor/utils/styles.dart';
+import 'package:video_editor/video_editor.dart';
 import 'package:video_player/video_player.dart';
-import 'package:flutter_ffmpeg/statistics.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 
 enum RotateDirection { left, right }
 
@@ -46,6 +49,8 @@ class VideoEditorController extends ChangeNotifier {
   ///Video from [File].
   final File file;
 
+  final StreamController thumbnailController;
+
   ///Constructs a [VideoEditorController] that edits a video from a file.
   VideoEditorController.file(
     this.file, {
@@ -54,7 +59,8 @@ class VideoEditorController extends ChangeNotifier {
   })  : assert(file != null),
         _video = VideoPlayerController.file(file),
         this.cropStyle = cropStyle ?? CropGridStyle(),
-        this.trimStyle = trimStyle ?? TrimSliderStyle();
+        this.trimStyle = trimStyle ?? TrimSliderStyle(),
+        this.thumbnailController = StreamController.broadcast();
 
   FlutterFFmpeg _ffmpeg = FlutterFFmpeg();
   FlutterFFprobe _ffprobe = FlutterFFprobe();
@@ -103,6 +109,7 @@ class VideoEditorController extends ChangeNotifier {
 
   ///The **MinTrim** (Range is `0.0` to `1.0`).
   double get minTrim => _minTrim;
+
   set minTrim(double value) {
     if (value >= _min.dx && value <= _max.dx) {
       _minTrim = value;
@@ -112,6 +119,7 @@ class VideoEditorController extends ChangeNotifier {
 
   ///The **MaxTrim** (Range is `0.0` to `1.0`).
   double get maxTrim => _maxTrim;
+
   set maxTrim(double value) {
     if (value >= _min.dx && value <= _max.dx) {
       _maxTrim = value;
@@ -121,6 +129,7 @@ class VideoEditorController extends ChangeNotifier {
 
   ///The **TopLeft Offset** (Range is `Offset(0.0, 0.0)` to `Offset(1.0, 1.0)`).
   Offset get minCrop => _minCrop;
+
   set minCrop(Offset value) {
     if (value >= _min && value <= _max) {
       _minCrop = value;
@@ -130,6 +139,7 @@ class VideoEditorController extends ChangeNotifier {
 
   ///The **BottomRight Offset** (Range is `Offset(0.0, 0.0)` to `Offset(1.0, 1.0)`).
   Offset get maxCrop => _maxCrop;
+
   set maxCrop(Offset value) {
     if (value >= _min && value <= _max) {
       _maxCrop = value;
@@ -138,6 +148,7 @@ class VideoEditorController extends ChangeNotifier {
   }
 
   double get preferredCropAspectRatio => _preferredCropAspectRatio;
+
   set preferredCropAspectRatio(double value) {
     if (value == null) {
       _preferredCropAspectRatio = value;
@@ -173,6 +184,7 @@ class VideoEditorController extends ChangeNotifier {
     //final executions = await _ffmpeg.listExecutions();
     //if (executions.length > 0) await _ffmpeg.cancel();
     _video.dispose();
+    await thumbnailController.close();
     super.dispose();
   }
 

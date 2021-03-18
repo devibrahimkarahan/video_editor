@@ -4,11 +4,11 @@ class CropGridStyle {
   ///Style for [CropGridViewer]. It's use on VideoEditorController
   CropGridStyle({
     Color croppingBackground,
-    this.background = Colors.black,
+    this.background = Colors.transparent,
     this.gridLineColor = Colors.white,
     this.gridLineWidth = 1,
     this.gridSize = 3,
-    this.boundariesColor = Colors.white,
+    this.boundariesColor = const Color(0xff392F5A),
     this.boundariesLenght = 20,
     this.boundariesWidth = 5,
   }) : this.croppingBackground =
@@ -36,10 +36,10 @@ class TrimSliderStyle {
   ///Style for [TrimSlider]. It's use on VideoEditorController
   TrimSliderStyle({
     Color background,
-    this.dotRadius = 5,
-    this.lineWidth = 2,
+    this.dotWidth = 4,
+    this.lineWidth = 12,
     this.dotColor = Colors.white,
-    this.lineColor = Colors.white,
+    this.lineColor = const Color(0xff392F5A),
     this.positionLineColor = Colors.red,
   }) : this.background = background ?? Colors.black.withOpacity(0.6);
 
@@ -50,7 +50,7 @@ class TrimSliderStyle {
   final Color background;
 
   final Color dotColor;
-  final double dotRadius;
+  final double dotWidth;
 
   final Color lineColor;
   final double lineWidth;

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:video_editor/utils/controller.dart';
 import 'package:video_editor/widgets/crop/crop_grid_painter.dart';
@@ -71,7 +72,7 @@ class _CropGridViewerState extends State<CropGridViewer> {
   }
 
   void _onPanStart(DragStartDetails details) {
-    final Offset margin = Offset(_boundariesWidth * 5, _boundariesWidth * 5);
+    final Offset margin = Offset(_boundariesWidth * 10, _boundariesWidth * 10);
     final Offset pos = details.localPosition;
     final Offset max = _rect.value.bottomRight;
     final Offset min = _rect.value.topLeft;

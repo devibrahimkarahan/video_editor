@@ -11,20 +11,20 @@ class TrimSliderPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final double width = style.lineWidth;
-    final double radius = style.dotRadius;
+    final double dotWidth = style.dotWidth;
     final double halfWidth = width / 2;
     final double halfHeight = rect.height / 2;
     final Paint dotPaint = Paint()..color = style.dotColor;
     final Paint linePaint = Paint()..color = style.lineColor;
     final Paint progressPaint = Paint()..color = style.positionLineColor;
-    final Paint background = Paint()..color = Colors.black.withOpacity(0.6);
+    final Paint background = Paint()..color = Colors.white.withOpacity(0.5);
 
     canvas.drawRect(
       Rect.fromPoints(
-        Offset(position - halfWidth, 0.0),
-        Offset(position + halfWidth, size.height),
+        Offset(position - halfWidth / 2, 0.0),
+        Offset(position + halfWidth / 2, size.height),
       ),
-      progressPaint,
+      progressPaint..color = Colors.red,
     );
 
     //BACKGROUND LEFT
@@ -39,59 +39,60 @@ class TrimSliderPainter extends CustomPainter {
     //BACKGROUND RIGHT
     canvas.drawRect(
       Rect.fromPoints(
-        rect.topRight,
+        rect.topRight - Offset(12, 0),
         Offset(size.width, size.height),
       ),
       background,
     );
 
-    //TOP RECT
-    canvas.drawRect(
-      Rect.fromPoints(
-        rect.topLeft,
-        rect.topRight + Offset(0.0, width),
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromPoints(rect.topLeft, rect.bottomRight),
+        Radius.circular(2),
+      ),
+      Paint()
+        ..color = style.lineColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = dotWidth,
+    );
+
+    //LEFT LINE
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromPoints(rect.bottomLeft - Offset(-width, 0), rect.topLeft),
+        bottomLeft: Radius.circular(2),
+        topLeft: Radius.circular(2),
       ),
       linePaint,
     );
-
-    //RIGHT RECT
-    canvas.drawRect(
-      Rect.fromPoints(
-        rect.topRight - Offset(width, -width),
-        rect.bottomRight,
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromPoints(
+          rect.centerLeft + Offset(dotWidth * 1.5, halfHeight / 2),
+          rect.centerLeft - Offset(-dotWidth, halfHeight / 2),
+        ),
+        Radius.circular(6),
       ),
-      linePaint,
-    );
-
-    //BOTTOM RECT
-    canvas.drawRect(
-      Rect.fromPoints(
-        rect.bottomRight - Offset(width, width),
-        rect.bottomLeft,
-      ),
-      linePaint,
-    );
-
-    //LEFT RECT
-    canvas.drawRect(
-      Rect.fromPoints(
-        rect.bottomLeft - Offset(-width, width),
-        rect.topLeft,
-      ),
-      linePaint,
-    );
-
-    //LECT CIRCLE
-    canvas.drawCircle(
-      Offset(rect.left + halfWidth, halfHeight),
-      radius,
       dotPaint,
     );
 
-    //RIGHT CIRCLE
-    canvas.drawCircle(
-      Offset(rect.right - halfWidth, halfHeight),
-      radius,
+    //RIGHT LINE
+    canvas.drawRRect(
+      RRect.fromRectAndCorners(
+        Rect.fromPoints(rect.bottomRight - Offset(width, 0), rect.topRight),
+        bottomRight: Radius.circular(2),
+        topRight: Radius.circular(2),
+      ),
+      linePaint,
+    );
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromPoints(
+          rect.centerRight + Offset(-dotWidth * 1.5, halfHeight / 2),
+          rect.centerRight - Offset(dotWidth, halfHeight / 2),
+        ),
+        Radius.circular(6),
+      ),
       dotPaint,
     );
   }

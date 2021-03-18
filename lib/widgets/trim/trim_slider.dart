@@ -1,7 +1,9 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:video_editor/utils/controller.dart';
-import 'package:video_editor/widgets/trim/trim_slider_painter.dart';
 import 'package:video_editor/widgets/trim/thumbnail_slider.dart';
+import 'package:video_editor/widgets/trim/trim_slider_painter.dart';
 import 'package:video_player/video_player.dart';
 
 enum _TrimBoundaries { left, right, inside, progress }
@@ -42,19 +44,29 @@ class _TrimSliderState extends State<TrimSlider> {
 
   @override
   void initState() {
+    super.initState();
     _controller = widget.controller.video;
     final Duration duration = _controller.value.duration;
     _maxDuration = widget.maxDuration == null || _maxDuration > duration
         ? duration
         : widget.maxDuration;
-    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+      final minT = widget.controller.minTrim;
+      final maxT = widget.controller.maxTrim;
+      if (minT == 0.0 && maxT == 1.0) return;
+      _changeTrimRect(
+        left: minT * _layout.width,
+        width: (maxT - minT) * _layout.width,
+      );
+      if (this.mounted) setState(() {});
+    });
   }
 
   //--------//
   //GESTURES//
   //--------//
   void _onHorizontalDragStart(DragStartDetails details) {
-    final double margin = 25.0;
+    final double margin = 30.0;
     final double pos = details.localPosition.dx;
     final double max = _rect.right;
     final double min = _rect.left;
@@ -101,6 +113,7 @@ class _TrimSliderState extends State<TrimSlider> {
           if (pos >= _rect.left && pos <= _rect.right) _controllerSeekTo(pos);
           break;
       }
+      setState(() {});
     }
   }
 
@@ -111,6 +124,8 @@ class _TrimSliderState extends State<TrimSlider> {
         _controllerSeekTo(_progressTrim);
       _updateControllerIsTrimming(false);
       _updateControllerTrim();
+      widget.controller.thumbnailController.add(null);
+      setState(() {});
     }
   }
 
@@ -179,16 +194,16 @@ class _TrimSliderState extends State<TrimSlider> {
   }
 
   Duration _getDurationDiff(double left, double width) {
-    final double min = left / _layout.width;
-    final double max = (left + width) / _layout.width;
-    final Duration duration = _controller.value.duration;
+    final double min = left / math.max(_layout.width, 1);
+    final double max = (left + width) / math.max(_layout.width, 1);
+    final Duration duration = _controller?.value?.duration ?? Duration.zero;
     return (duration * max) - (duration * min);
   }
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (_, contrainst) {
-      final Size layout = Size(contrainst.maxWidth, contrainst.maxHeight);
+    return LayoutBuilder(builder: (_, constraints) {
+      final Size layout = Size(constraints.maxWidth, constraints.maxHeight);
       if (_layout != layout) {
         _layout = layout;
         _createTrimRect();
