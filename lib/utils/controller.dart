@@ -57,7 +57,10 @@ class VideoEditorController extends ChangeNotifier {
     TrimSliderStyle trimStyle,
     CropGridStyle cropStyle,
   })  : assert(file != null),
-        _video = VideoPlayerController.file(file),
+        _video = VideoPlayerController.file(
+          file,
+          videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
+        ),
         this.cropStyle = cropStyle ?? CropGridStyle(),
         this.trimStyle = trimStyle ?? TrimSliderStyle(),
         this.thumbnailController = StreamController.broadcast();
