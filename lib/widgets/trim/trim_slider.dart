@@ -124,7 +124,6 @@ class _TrimSliderState extends State<TrimSlider> {
         _controllerSeekTo(_progressTrim);
       _updateControllerIsTrimming(false);
       _updateControllerTrim();
-      widget.controller.thumbnailController.add(null);
       setState(() {});
     }
   }
@@ -159,7 +158,7 @@ class _TrimSliderState extends State<TrimSlider> {
           0.0,
           0.0,
           (_maxDuration.inMilliseconds /
-                  _controller.value.duration.inMilliseconds) *
+              _controller.value.duration.inMilliseconds) *
               _layout.width,
           widget.height,
         );

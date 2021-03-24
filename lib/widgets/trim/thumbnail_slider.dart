@@ -9,8 +9,7 @@ class ThumbnailSlider extends StatefulWidget {
   ThumbnailSlider({
     @required this.controller,
     this.height = 60,
-    this.quality = 25,
-    this.previewMode = false,
+    this.quality = 10,
   }) : assert(controller != null);
 
   ///MAX QUALITY IS 100 - MIN QUALITY IS 0
@@ -20,8 +19,6 @@ class ThumbnailSlider extends StatefulWidget {
   final double height;
 
   final VideoEditorController controller;
-
-  final bool previewMode;
 
   @override
   _ThumbnailSliderState createState() => _ThumbnailSliderState();
@@ -43,15 +40,13 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
   void initState() {
     super.initState();
     _aspect = widget.controller.video.value.aspectRatio;
-    if (widget.previewMode) {
-      _subscription = widget.controller.thumbnailController.stream.listen(
-        (value) {
-          setState(() {
-            _stream = _generateThumbnails();
-          });
-        },
-      );
-    }
+    _subscription = widget.controller.thumbnailController.stream.listen(
+      (value) {
+        setState(() {
+          _stream = _generateThumbnails();
+        });
+      },
+    );
   }
 
   @override
@@ -69,12 +64,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
   Stream<List<Uint8List>> _generateThumbnails() async* {
     final String path = widget.controller.file.path;
     final ms = widget.controller.videoDuration.inMilliseconds;
-    final minT = widget.controller.minTrim;
-    final maxT = widget.controller.maxTrim;
-
-    final int duration = widget.previewMode ? (minT).toInt() : ms;
-    final double eachPart = duration / _thumbnails;
-    final double eachPartPreview = ((maxT - minT) * ms) / _thumbnails;
+    final double eachPart = ms / _thumbnails;
 
     List<Uint8List> _byteList = [];
 
@@ -82,9 +72,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
       Uint8List _bytes = await VideoThumbnail.thumbnailData(
         imageFormat: ImageFormat.JPEG,
         video: path,
-        timeMs: widget.previewMode
-            ? (minT * ms).toInt() + (eachPartPreview * i).toInt()
-            : (eachPart * i).toInt(),
+        timeMs: (eachPart * i).toInt(),
         quality: widget.quality,
       );
       _byteList.add(_bytes);
