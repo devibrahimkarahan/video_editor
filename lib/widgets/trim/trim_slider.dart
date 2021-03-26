@@ -16,6 +16,8 @@ class TrimSlider extends StatefulWidget {
     this.height = 60,
     this.quality = 25,
     this.maxDuration,
+    this.previewMode = false,
+    this.allowTrimPositionChange = true,
   }) : super(key: key);
 
   ///**Quality of thumbnails:** 0 is the worst quality and 100 is the highest quality.
@@ -29,6 +31,9 @@ class TrimSlider extends StatefulWidget {
 
   ///Essential argument for the functioning of the Widget
   final VideoEditorController controller;
+
+  final bool previewMode;
+  final bool allowTrimPositionChange;
 
   @override
   _TrimSliderState createState() => _TrimSliderState();
@@ -77,7 +82,9 @@ class _TrimSliderState extends State<TrimSlider> {
     //IS TOUCHING THE GRID
     if (pos >= minMargin[0] && pos <= maxMargin[1]) {
       //TOUCH BOUNDARIES
-      if (pos >= minMargin[0] && pos <= minMargin[1])
+      if (widget.previewMode)
+        _boundary.value = _TrimBoundaries.progress;
+      else if (pos >= minMargin[0] && pos <= minMargin[1])
         _boundary.value = _TrimBoundaries.left;
       else if (pos >= maxMargin[0] && pos <= maxMargin[1])
         _boundary.value = _TrimBoundaries.right;
@@ -158,7 +165,7 @@ class _TrimSliderState extends State<TrimSlider> {
           0.0,
           0.0,
           (_maxDuration.inMilliseconds /
-              _controller.value.duration.inMilliseconds) *
+                  _controller.value.duration.inMilliseconds) *
               _layout.width,
           widget.height,
         );
@@ -209,9 +216,12 @@ class _TrimSliderState extends State<TrimSlider> {
       }
 
       return GestureDetector(
-        onHorizontalDragUpdate: _onHorizontalDragUpdate,
-        onHorizontalDragStart: _onHorizontalDragStart,
-        onHorizontalDragEnd: _onHorizontalDragEnd,
+        onHorizontalDragUpdate:
+            widget.allowTrimPositionChange ? _onHorizontalDragUpdate : null,
+        onHorizontalDragStart:
+            widget.allowTrimPositionChange ? _onHorizontalDragStart : null,
+        onHorizontalDragEnd:
+            widget.allowTrimPositionChange ? _onHorizontalDragEnd : null,
         behavior: HitTestBehavior.opaque,
         child: Stack(children: [
           ThumbnailSlider(
@@ -228,6 +238,7 @@ class _TrimSliderState extends State<TrimSlider> {
                   _rect,
                   _getTrimPosition(),
                   style: widget.controller.trimStyle,
+                  previewMode: widget.previewMode,
                 ),
               );
             },
