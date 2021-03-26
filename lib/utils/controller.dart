@@ -212,7 +212,13 @@ class VideoEditorController extends ChangeNotifier {
     if (enddy > _videoHeight) enddy = _videoHeight;
     if (startdx < 0) startdx = 0;
     if (startdy < 0) startdy = 0;
-    return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
+
+    final mediaInfo = await _ffprobe.getMediaInformation(file.path);
+    final rotate = mediaInfo.getAllProperties()["streams"][0]["tags"]["rotate"];
+    if (rotate == null || num.parse(rotate) % 180 == 0)
+      return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
+    else
+      return "crop=${enddy - startdy}:${enddx - startdx}:$startdy:$startdx";
   }
 
   //----------//
