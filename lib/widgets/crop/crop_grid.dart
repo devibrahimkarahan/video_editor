@@ -5,6 +5,8 @@ import 'package:video_editor/utils/controller.dart';
 import 'package:video_editor/widgets/crop/crop_grid_painter.dart';
 import 'package:video_editor/widgets/video/video_viewer.dart';
 
+typedef void LayoutListener(Size size);
+
 enum _CropBoundaries {
   topLeft,
   topRight,
@@ -26,6 +28,7 @@ class CropGridViewer extends StatefulWidget {
     this.onChangeCrop,
     this.showGrid = true,
     this.reactionWidget,
+    this.layoutListener,
   }) : super(key: key);
 
   /// If it is true, it shows the grid and allows cropping the video, if it is false
@@ -39,6 +42,7 @@ class CropGridViewer extends StatefulWidget {
   final void Function(Offset min, Offset max) onChangeCrop;
 
   final Widget reactionWidget;
+  final LayoutListener layoutListener;
 
   @override
   _CropGridViewerState createState() => _CropGridViewerState();
@@ -299,9 +303,12 @@ class _CropGridViewerState extends State<CropGridViewer> {
           child: VideoViewer(
             controller: _controller,
             child: LayoutBuilder(builder: (_, constraints) {
+              print(">>>>> CONSTRAINTS: $constraints");
               Size size = Size(constraints.maxWidth, constraints.maxHeight);
               if (_layout != size) {
                 _layout = size;
+                if (widget.layoutListener != null)
+                  widget.layoutListener(_layout);
                 _rect.value = _calculateCropRect();
               }
 
