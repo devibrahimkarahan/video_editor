@@ -303,7 +303,6 @@ class _CropGridViewerState extends State<CropGridViewer> {
           child: VideoViewer(
             controller: _controller,
             child: LayoutBuilder(builder: (_, constraints) {
-              print(">>>>> CONSTRAINTS: $constraints");
               Size size = Size(constraints.maxWidth, constraints.maxHeight);
               if (_layout != size) {
                 _layout = size;
