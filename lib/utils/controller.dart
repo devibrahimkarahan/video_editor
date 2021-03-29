@@ -340,7 +340,7 @@ class VideoEditorController extends ChangeNotifier {
     if (progressCallback != null)
       _config.enableStatisticsCallback(progressCallback);
     final int code = await _ffmpeg.execute(execute);
-    _config.enableStatisticsCallback(null);
+    // _config.enableStatisticsCallback(null);
 
     //------//
     //RESULT//
