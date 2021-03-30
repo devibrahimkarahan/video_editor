@@ -315,9 +315,9 @@ class _CropGridViewerState extends State<CropGridViewer> {
 
               return Stack(
                 children: [
-                  IgnorePointer(
-                    ignoring: widget.ignoring,
-                    child: Positioned.fill(
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: widget.ignoring,
                       child: widget.showGrid
                           ? GestureDetector(
                               onPanUpdate: _onPanUpdate,
