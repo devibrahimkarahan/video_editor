@@ -29,7 +29,7 @@ class CropGridViewer extends StatefulWidget {
     this.showGrid = true,
     this.reactionWidget,
     this.layoutListener,
-    this.ignoring,
+    this.ignoring = false,
   }) : super(key: key);
 
   /// If it is true, it shows the grid and allows cropping the video, if it is false
@@ -304,6 +304,7 @@ class _CropGridViewerState extends State<CropGridViewer> {
           offset: _translate,
           child: VideoViewer(
             controller: _controller,
+            ignoring: widget.ignoring,
             child: LayoutBuilder(builder: (_, constraints) {
               Size size = Size(constraints.maxWidth, constraints.maxHeight);
               if (_layout != size) {
