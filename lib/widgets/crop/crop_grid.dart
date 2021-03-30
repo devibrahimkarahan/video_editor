@@ -29,6 +29,7 @@ class CropGridViewer extends StatefulWidget {
     this.showGrid = true,
     this.reactionWidget,
     this.layoutListener,
+    this.ignoring,
   }) : super(key: key);
 
   /// If it is true, it shows the grid and allows cropping the video, if it is false
@@ -43,6 +44,7 @@ class CropGridViewer extends StatefulWidget {
 
   final Widget reactionWidget;
   final LayoutListener layoutListener;
+  final bool ignoring;
 
   @override
   _CropGridViewerState createState() => _CropGridViewerState();
@@ -313,15 +315,18 @@ class _CropGridViewerState extends State<CropGridViewer> {
 
               return Stack(
                 children: [
-                  Positioned.fill(
-                    child: widget.showGrid
-                        ? GestureDetector(
-                            onPanUpdate: _onPanUpdate,
-                            onPanStart: _onPanStart,
-                            onPanEnd: _onPanEnd,
-                            child: _paint(),
-                          )
-                        : _paint(),
+                  IgnorePointer(
+                    ignoring: widget.ignoring,
+                    child: Positioned.fill(
+                      child: widget.showGrid
+                          ? GestureDetector(
+                              onPanUpdate: _onPanUpdate,
+                              onPanStart: _onPanStart,
+                              onPanEnd: _onPanEnd,
+                              child: _paint(),
+                            )
+                          : _paint(),
+                    ),
                   ),
                   if (widget.reactionWidget != null)
                     Positioned(
