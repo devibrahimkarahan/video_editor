@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:video_editor/utils/styles.dart';
+import 'package:video_editor/utils/crop_style.dart';
 
 class CropGridPainter extends CustomPainter {
   CropGridPainter(
@@ -63,7 +63,7 @@ class CropGridPainter extends CustomPainter {
 
   void _drawBoundaries(Canvas canvas, Size size) {
     final double width = style.boundariesWidth;
-    final double lenght = style.boundariesLenght;
+    final double lenght = style.boundariesLength;
     final Paint paint = Paint()..color = style.boundariesColor;
 
     //----//

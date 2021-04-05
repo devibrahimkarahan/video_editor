@@ -6,7 +6,8 @@ import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:flutter_ffmpeg/statistics.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_editor/utils/styles.dart';
+import 'package:video_editor/utils/crop_style.dart';
+import 'package:video_editor/utils/trim_style.dart';
 import 'package:video_editor/video_editor.dart';
 import 'package:video_player/video_player.dart';
 
@@ -80,6 +81,9 @@ class VideoEditorController extends ChangeNotifier {
   Offset _minCrop = _min;
   Offset _maxCrop = _max;
 
+  Offset cacheMinCrop = _min;
+  Offset cacheMaxCrop = _max;
+
   Duration _trimEnd = Duration.zero;
   Duration _trimStart = Duration.zero;
   VideoPlayerController _video;
@@ -106,9 +110,8 @@ class VideoEditorController extends ChangeNotifier {
   Duration get videoDuration => _video.value.duration;
 
   ///Get the [Video Dimension] like VideoWidth and VideoHeight
-  Size videoDimension() {
-    return Size(_videoWidth.toDouble(), _videoHeight.toDouble());
-  }
+  Size get videoDimension =>
+      Size(_videoWidth.toDouble(), _videoHeight.toDouble());
 
   ///The **MinTrim** (Range is `0.0` to `1.0`).
   double get minTrim => _minTrim;
@@ -156,12 +159,28 @@ class VideoEditorController extends ChangeNotifier {
     if (value == null) {
       _preferredCropAspectRatio = value;
       notifyListeners();
-    } else {
-      final width = (maxCrop.dx - minCrop.dx);
-      final max = Offset(width, width / (value * 2));
-      if (value >= 0 && max <= _max) {
+    } else if (value >= 0) {
+      final length = cropStyle.boundariesLength * 4;
+      final videoWidth = videoDimension.width;
+      final videoHeight = videoDimension.height;
+      final cropHeight = (cacheMaxCrop.dy - cacheMinCrop.dy) * videoHeight;
+      final cropWidth = (cacheMaxCrop.dx - cacheMinCrop.dx) * videoWidth;
+      Offset newMax = Offset(
+        cropWidth / videoWidth,
+        (cropWidth / value) / videoWidth,
+      );
+
+      if (newMax.dy > _max.dy || newMax.dx > _max.dx) {
+        newMax = Offset(
+          (cropHeight * value) / cropHeight,
+          cropHeight / videoHeight,
+        );
+      }
+
+      if ((newMax.dx - cacheMinCrop.dx) * videoWidth > length &&
+          (newMax.dy - cacheMinCrop.dy) * videoHeight > length) {
+        cacheMaxCrop = newMax;
         _preferredCropAspectRatio = value;
-        maxCrop = max;
         notifyListeners();
       }
     }
@@ -173,7 +192,7 @@ class VideoEditorController extends ChangeNotifier {
   ///Attempts to open the given [File] and load metadata about the video.
   Future<void> initialize() async {
     await _video.initialize();
-    //await _getVideoDimensions();
+    await _getVideoDimensions();
     _video.addListener(_videoListener);
     _video.setLooping(true);
     _updateTrimRange();
@@ -184,8 +203,8 @@ class VideoEditorController extends ChangeNotifier {
   Future<void> dispose() async {
     if (_video.value.isPlaying) await _video.pause();
     _video.removeListener(_videoListener);
-    //final executions = await _ffmpeg.listExecutions();
-    //if (executions.length > 0) await _ffmpeg.cancel();
+    final executions = await _ffmpeg.listExecutions();
+    if (executions.length > 0) await _ffmpeg.cancel();
     _video.dispose();
     await thumbnailController.close();
     super.dispose();
@@ -195,7 +214,6 @@ class VideoEditorController extends ChangeNotifier {
     final position = videoPosition;
     if (position < _trimStart || position >= _trimEnd)
       _video.seekTo(_trimStart);
-    notifyListeners();
   }
 
   //----------//
@@ -212,18 +230,25 @@ class VideoEditorController extends ChangeNotifier {
     if (enddy > _videoHeight) enddy = _videoHeight;
     if (startdx < 0) startdx = 0;
     if (startdy < 0) startdy = 0;
+    return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
 
-    final mediaInfo = await _ffprobe.getMediaInformation(file.path);
-    var rotate;
-    try {
-      rotate = mediaInfo.getAllProperties()["streams"][0]["tags"]["rotate"];
-    } catch (e) {
-      rotate = null;
-    }
-    if (rotate == null || num.parse(rotate) % 180 == 0)
-      return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
-    else
-      return "crop=${enddy - startdy}:${enddx - startdx}:$startdy:$startdx";
+    // final mediaInfo = await _ffprobe.getMediaInformation(file.path);
+    // var rotate;
+    // try {
+    //   rotate = mediaInfo.getAllProperties()["streams"][0]["tags"]["rotate"];
+    // } catch (e) {
+    //   rotate = null;
+    // }
+    // if (rotate == null || num.parse(rotate) % 180 == 0)
+    //   return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
+    // else
+    //   return "crop=${enddy - startdy}:${enddx - startdx}:$startdy:$startdx";
+  }
+
+  ///Update the [minCrop] and [maxCrop]
+  void updateCrop() {
+    minCrop = cacheMinCrop;
+    maxCrop = cacheMaxCrop;
   }
 
   //----------//
@@ -233,6 +258,7 @@ class VideoEditorController extends ChangeNotifier {
     final duration = videoDuration;
     _trimStart = duration * minTrim;
     _trimEnd = duration * maxTrim;
+    notifyListeners();
   }
 
   ///Get the **VideoPosition** (Range is `0.0` to `1.0`).
