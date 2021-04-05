@@ -334,8 +334,10 @@ class VideoEditorController extends ChangeNotifier {
     filters.removeWhere((item) => item.isEmpty);
     final String filter =
         filters.isNotEmpty ? "-filter:v " + filters.join(",") : "";
+    final vol = _video.value.volume;
     final String execute =
-        " -i $videoPath ${customInstruction ?? ""} $filter ${_getPreset(preset)} $trim -y $outputPath";
+        ' -i $videoPath ${customInstruction ?? ""} $filter ${_getPreset(preset)} $trim'
+        ' -af volume=$vol -y $outputPath';
 
     if (progressCallback != null)
       _config.enableStatisticsCallback(progressCallback);
