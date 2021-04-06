@@ -132,6 +132,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: data.length,
                   itemBuilder: (_, int index) {
+                    if (data[index] == null) return SizedBox();
                     return ValueListenableBuilder(
                       valueListenable: _transform,
                       builder: (_, TransformData transform, __) {
