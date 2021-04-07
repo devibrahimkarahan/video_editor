@@ -310,31 +310,36 @@ class _CropGridViewerState extends State<CropGridViewer> {
               if (_layout != size) {
                 _layout = size;
                 _rect.value = _calculateCropRect();
+                if (widget.layoutListener != null)
+                  widget.layoutListener(_layout);
               }
 
               return Stack(
                 children: [
                   _paint(),
                   if (widget.showGrid)
-                    GestureDetector(
-                      onPanEnd: (_) => _onPanEnd(),
-                      onPanStart: _onPanStart,
-                      onPanUpdate: _onPanUpdate,
-                      child: ValueListenableBuilder(
-                        valueListenable: _rect,
-                        builder: (_, Rect value, __) {
-                          final left = value.left - _margin.dx;
-                          final top = value.top - _margin.dy;
-                          return Container(
-                            margin: EdgeInsets.only(
-                              left: left < 0.0 ? 0.0 : left,
-                              top: top < 0.0 ? 0.0 : top,
-                            ),
-                            color: Colors.transparent,
-                            width: value.width + _margin.dx * 2,
-                            height: value.height + _margin.dy * 2,
-                          );
-                        },
+                    IgnorePointer(
+                      ignoring: widget.ignoring,
+                      child: GestureDetector(
+                        onPanEnd: (_) => _onPanEnd(),
+                        onPanStart: _onPanStart,
+                        onPanUpdate: _onPanUpdate,
+                        child: ValueListenableBuilder(
+                          valueListenable: _rect,
+                          builder: (_, Rect value, __) {
+                            final left = value.left - _margin.dx;
+                            final top = value.top - _margin.dy;
+                            return Container(
+                              margin: EdgeInsets.only(
+                                left: left < 0.0 ? 0.0 : left,
+                                top: top < 0.0 ? 0.0 : top,
+                              ),
+                              color: Colors.transparent,
+                              width: value.width + _margin.dx * 2,
+                              height: value.height + _margin.dy * 2,
+                            );
+                          },
+                        ),
                       ),
                     ),
                   if (widget.reactionWidget != null)
@@ -368,85 +373,4 @@ class _CropGridViewerState extends State<CropGridViewer> {
       },
     );
   }
-
-// @override
-// Widget build(BuildContext context) {
-//   return Transform.rotate(
-//     angle: _rotation,
-//     child: Transform.scale(
-//       scale: _scale,
-//       child: Transform.translate(
-//         offset: _translate,
-//         child: VideoViewer(
-//           controller: _controller,
-//           ignoring: widget.ignoring,
-//           child: LayoutBuilder(builder: (_, constraints) {
-//             Size size = Size(constraints.maxWidth, constraints.maxHeight);
-//             if (_layout != size) {
-//               _layout = size;
-//               if (widget.layoutListener != null)
-//                 widget.layoutListener(_layout);
-//               _rect.value = _calculateCropRect();
-//             }
-//
-//             return Stack(
-//               children: [
-//                 IgnorePointer(
-//                   ignoring: widget.ignoring,
-//                   child: widget.showGrid
-//                       ? GestureDetector(
-//                           onPanEnd: _onPanEnd,
-//                           onPanStart: _onPanStart,
-//                           onPanUpdate: _onPanUpdate,
-//                           child: ValueListenableBuilder(
-//                             valueListenable: _rect,
-//                             builder: (_, Rect value, __) {
-//                               final left = value.left - _margin.dx;
-//                               final top = value.top - _margin.dy;
-//                               return Container(
-//                                 margin: EdgeInsets.only(
-//                                   left: left < 0.0 ? 0.0 : left,
-//                                   top: top < 0.0 ? 0.0 : top,
-//                                 ),
-//                                 color: Colors.transparent,
-//                                 width: value.width + _margin.dx * 2,
-//                                 height: value.height + _margin.dy * 2,
-//                               );
-//                             },
-//                           ),
-//                         )
-//                       : _paint(),
-//                 ),
-//                 if (widget.reactionWidget != null)
-//                   Positioned(
-//                     right: 10,
-//                     bottom: 10,
-//                     child: widget.reactionWidget,
-//                   ),
-//               ],
-//             );
-//           }),
-//         ),
-//       ),
-//     ),
-//   );
-// }
-//
-// Widget _paint() {
-//   return ValueListenableBuilder(
-//     valueListenable: _rect,
-//     builder: (_, Rect value, __) {
-//       return CustomPaint(
-//         size: Size.infinite,
-//         painter: CropGridPainter(
-//           value,
-//           style: _controller.cropStyle,
-//           repaint: widget.showGrid,
-//           showGrid: widget.showGrid,
-//           showCenterRects: _controller.preferredCropAspectRatio == null,
-//         ),
-//       );
-//     },
-//   );
-// }
 }
