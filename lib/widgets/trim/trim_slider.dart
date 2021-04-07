@@ -6,7 +6,7 @@ import 'package:video_editor/widgets/trim/thumbnail_slider.dart';
 import 'package:video_editor/widgets/trim/trim_slider_painter.dart';
 import 'package:video_player/video_player.dart';
 
-enum _TrimBoundaries { left, right, inside, progress }
+enum _TrimBoundaries { left, right, inside, progress, none }
 
 class TrimSlider extends StatefulWidget {
   ///Slider that trim video length.
@@ -40,7 +40,7 @@ class TrimSlider extends StatefulWidget {
 }
 
 class _TrimSliderState extends State<TrimSlider> {
-  final _boundary = ValueNotifier<_TrimBoundaries>(null);
+  final _boundary = ValueNotifier<_TrimBoundaries>(_TrimBoundaries.none);
 
   Rect _rect;
   Size _layout = Size.zero;
@@ -93,45 +93,43 @@ class _TrimSliderState extends State<TrimSlider> {
       else if (pos >= minMargin[1] && pos <= maxMargin[0])
         _boundary.value = _TrimBoundaries.inside;
       else
-        _boundary.value = null;
+        _boundary.value = _TrimBoundaries.none;
       _updateControllerIsTrimming(true);
     } else {
-      _boundary.value = null;
+      _boundary.value = _TrimBoundaries.none;
     }
   }
 
   void _onHorizontalDragUpdate(DragUpdateDetails details) {
-    if (_boundary.value != null) {
-      final Offset delta = details.delta;
-      switch (_boundary.value) {
-        case _TrimBoundaries.left:
-          final pos = _rect.topLeft + delta;
-          _changeTrimRect(left: pos.dx, width: _rect.width - delta.dx);
-          break;
-        case _TrimBoundaries.right:
-          _changeTrimRect(width: _rect.width + delta.dx);
-          break;
-        case _TrimBoundaries.inside:
-          final pos = _rect.topLeft + delta;
-          _changeTrimRect(left: pos.dx);
-          break;
-        case _TrimBoundaries.progress:
-          final double pos = details.localPosition.dx;
-          if (pos >= _rect.left && pos <= _rect.right) _controllerSeekTo(pos);
-          break;
-      }
-      setState(() {});
+    final Offset delta = details.delta;
+    switch (_boundary.value) {
+      case _TrimBoundaries.left:
+        final pos = _rect.topLeft + delta;
+        _changeTrimRect(left: pos.dx, width: _rect.width - delta.dx);
+        break;
+      case _TrimBoundaries.right:
+        _changeTrimRect(width: _rect.width + delta.dx);
+        break;
+      case _TrimBoundaries.inside:
+        final pos = _rect.topLeft + delta;
+        _changeTrimRect(left: pos.dx);
+        break;
+      case _TrimBoundaries.progress:
+        final double pos = details.localPosition.dx;
+        if (pos >= _rect.left && pos <= _rect.right) _controllerSeekTo(pos);
+        break;
+      case _TrimBoundaries.none:
+        break;
     }
   }
 
   void _onHorizontalDragEnd(_) {
-    if (_boundary.value != null) {
+    if (_boundary.value != _TrimBoundaries.none) {
       final double _progressTrim = _getTrimPosition();
       if (_progressTrim >= _rect.right || _progressTrim < _rect.left)
         _controllerSeekTo(_progressTrim);
       _updateControllerIsTrimming(false);
       _updateControllerTrim();
-      setState(() {});
     }
   }
 
@@ -158,20 +156,17 @@ class _TrimSliderState extends State<TrimSlider> {
       );
     }
 
-    if (_rect == null) {
-      final Duration diff = _getDurationDiff(0.0, _layout.width);
-      if (diff >= _maxDuration)
-        _rect = Rect.fromLTWH(
-          0.0,
-          0.0,
-          (_maxDuration.inMilliseconds /
-                  _controller.value.duration.inMilliseconds) *
-              _layout.width,
-          widget.height,
-        );
-      else
-        _normalRect();
-    } else
+    final Duration diff = _getDurationDiff(0.0, _layout.width);
+    if (diff >= _maxDuration)
+      _rect = Rect.fromLTWH(
+        0.0,
+        0.0,
+        (_maxDuration.inMilliseconds /
+                _controller.value.duration.inMilliseconds) *
+            _layout.width,
+        widget.height,
+      );
+    else
       _normalRect();
   }
 
@@ -191,7 +186,8 @@ class _TrimSliderState extends State<TrimSlider> {
   }
 
   void _updateControllerIsTrimming(bool value) {
-    if (_boundary.value != null && _boundary.value != _TrimBoundaries.progress)
+    if (_boundary.value != _TrimBoundaries.none &&
+        _boundary.value != _TrimBoundaries.progress)
       widget.controller.isTrimming = value;
   }
 
@@ -230,7 +226,7 @@ class _TrimSliderState extends State<TrimSlider> {
             quality: widget.quality,
           ),
           AnimatedBuilder(
-            animation: _controller,
+            animation: Listenable.merge([widget.controller, _controller]),
             builder: (_, __) {
               return CustomPaint(
                 size: Size.infinite,

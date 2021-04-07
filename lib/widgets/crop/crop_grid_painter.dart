@@ -6,22 +6,19 @@ class CropGridPainter extends CustomPainter {
     this.rect, {
     this.style,
     this.showGrid = false,
-    this.repaint = false,
     this.showCenterRects = true,
   });
 
   final Rect rect;
   final CropGridStyle style;
-  final bool showGrid, showCenterRects, repaint;
+  final bool showGrid, showCenterRects;
 
   @override
   void paint(Canvas canvas, Size size) {
-    if (rect != null) {
-      _drawBackground(canvas, size);
-      if (showGrid) {
-        _drawGrid(canvas, size);
-        _drawBoundaries(canvas, size);
-      }
+    _drawBackground(canvas, size);
+    if (showGrid) {
+      _drawGrid(canvas, size);
+      _drawBoundaries(canvas, size);
     }
   }
 
@@ -176,7 +173,7 @@ class CropGridPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(CropGridPainter oldDelegate) => repaint;
+  bool shouldRepaint(CropGridPainter oldDelegate) => true;
 
   @override
   bool shouldRebuildSemantics(CropGridPainter oldDelegate) => false;

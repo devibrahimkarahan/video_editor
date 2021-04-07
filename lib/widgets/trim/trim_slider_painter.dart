@@ -20,12 +20,15 @@ class TrimSliderPainter extends CustomPainter {
     final Paint progressPaint = Paint()..color = style.positionLineColor;
     final Paint background = Paint()..color = Colors.white.withOpacity(0.5);
 
-    canvas.drawRect(
-      Rect.fromPoints(
-        Offset(position - halfWidth / 2, 0.0),
-        Offset(position + halfWidth / 2, size.height),
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(
+        Rect.fromPoints(
+          Offset(position - halfWidth / 2, 0.0),
+          Offset(position + halfWidth / 2, size.height),
+        ),
+        Radius.circular(2),
       ),
-      progressPaint..color = Colors.red,
+      progressPaint,
     );
 
     if (previewMode == null || !previewMode) {
@@ -101,7 +104,7 @@ class TrimSliderPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(TrimSliderPainter oldDelegate) => false;
+  bool shouldRepaint(TrimSliderPainter oldDelegate) => true;
 
   @override
   bool shouldRebuildSemantics(TrimSliderPainter oldDelegate) => false;
