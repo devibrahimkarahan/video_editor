@@ -113,15 +113,21 @@ class _CropGridViewerState extends State<CropGridViewer> {
     final List<Offset> maxMargin = [max - _margin, max + _margin];
 
     if (pos >= minMargin[0] && pos <= maxMargin[1]) {
-      final Rect topLeft = Rect.fromPoints(minMargin[0], minMargin[1]);
-      final Rect bottomRight = Rect.fromPoints(maxMargin[0], maxMargin[1]);
+      final Rect topLeft = Rect.fromPoints(
+        minMargin[0] - Offset(10, 10),
+        minMargin[1] + Offset(10, 10),
+      );
+      final Rect bottomRight = Rect.fromPoints(
+        maxMargin[0] - Offset(10, 10),
+        maxMargin[1] + Offset(10, 10),
+      );
       final Rect topRight = Rect.fromPoints(
-        Offset(maxMargin[0].dx, minMargin[0].dy),
-        Offset(maxMargin[1].dx, minMargin[1].dy),
+        Offset(maxMargin[0].dx - 10, minMargin[0].dy - 10),
+        Offset(maxMargin[1].dx + 10, minMargin[1].dy + 10),
       );
       final Rect bottomLeft = Rect.fromPoints(
-        Offset(minMargin[0].dx, maxMargin[0].dy),
-        Offset(minMargin[1].dx, maxMargin[1].dy),
+        Offset(minMargin[0].dx - 10, maxMargin[0].dy - 10),
+        Offset(minMargin[1].dx + 10, maxMargin[1].dy + 10),
       );
 
       //CORNERS
@@ -298,63 +304,67 @@ class _CropGridViewerState extends State<CropGridViewer> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: _transform,
-      builder: (_, TransformData transform, __) => CropTransform(
-        transform: transform,
-        child: VideoViewer(
-          controller: _controller,
-          ignoring: widget.ignoring,
-          child: LayoutBuilder(
-            builder: (_, constraints) {
-              Size size = Size(constraints.maxWidth, constraints.maxHeight);
-              if (_layout != size) {
-                _layout = size;
-                _rect.value = _calculateCropRect();
-                if (widget.layoutListener != null)
-                  widget.layoutListener(_layout);
-              }
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: ValueListenableBuilder(
+        valueListenable: _transform,
+        builder: (_, TransformData transform, __) => CropTransform(
+          transform: transform,
+          child: VideoViewer(
+            controller: _controller,
+            ignoring: widget.ignoring,
+            child: LayoutBuilder(
+              builder: (_, constraints) {
+                Size size = Size(constraints.maxWidth, constraints.maxHeight);
+                if (_layout != size) {
+                  _layout = size;
+                  _rect.value = _calculateCropRect();
+                  if (widget.layoutListener != null)
+                    widget.layoutListener(_layout);
+                }
 
-              return Stack(
-                children: [
-                  IgnorePointer(
-                    ignoring: widget.ignoring,
-                    child: _paint(),
-                  ),
-                  if (widget.showGrid)
+                return Stack(
+                  children: [
                     IgnorePointer(
                       ignoring: widget.ignoring,
-                      child: GestureDetector(
-                        onPanEnd: (_) => _onPanEnd(),
-                        onPanStart: _onPanStart,
-                        onPanUpdate: _onPanUpdate,
-                        child: ValueListenableBuilder(
-                          valueListenable: _rect,
-                          builder: (_, Rect value, __) {
-                            final left = value.left - _margin.dx;
-                            final top = value.top - _margin.dy;
-                            return Container(
-                              margin: EdgeInsets.only(
-                                left: left < 0.0 ? 0.0 : left,
-                                top: top < 0.0 ? 0.0 : top,
-                              ),
-                              color: Colors.transparent,
-                              width: value.width + _margin.dx * 2,
-                              height: value.height + _margin.dy * 2,
-                            );
-                          },
+                      child: _paint(),
+                    ),
+                    if (widget.showGrid)
+                      IgnorePointer(
+                        ignoring: widget.ignoring,
+                        child: GestureDetector(
+                          onPanEnd: (_) => _onPanEnd(),
+                          onPanStart: _onPanStart,
+                          onPanUpdate: _onPanUpdate,
+                          behavior: HitTestBehavior.opaque,
+                          child: ValueListenableBuilder(
+                            valueListenable: _rect,
+                            builder: (_, Rect value, __) {
+                              final left = value.left - _margin.dx;
+                              final top = value.top - _margin.dy;
+                              return Container(
+                                margin: EdgeInsets.only(
+                                  left: left < 0.0 ? 0.0 : left,
+                                  top: top < 0.0 ? 0.0 : top,
+                                ),
+                                color: Colors.transparent,
+                                width: value.width + _margin.dx * 2,
+                                height: value.height + _margin.dy * 2,
+                              );
+                            },
+                          ),
                         ),
                       ),
-                    ),
-                  if (widget.reactionWidget != null)
-                    Positioned(
-                      right: 10,
-                      bottom: 10,
-                      child: widget.reactionWidget,
-                    ),
-                ],
-              );
-            },
+                    if (widget.reactionWidget != null)
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: widget.reactionWidget,
+                      ),
+                  ],
+                );
+              },
+            ),
           ),
         ),
       ),
