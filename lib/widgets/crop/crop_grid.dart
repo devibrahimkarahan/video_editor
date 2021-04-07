@@ -304,6 +304,7 @@ class _CropGridViewerState extends State<CropGridViewer> {
         transform: transform,
         child: VideoViewer(
           controller: _controller,
+          ignoring: widget.ignoring,
           child: LayoutBuilder(
             builder: (_, constraints) {
               Size size = Size(constraints.maxWidth, constraints.maxHeight);
@@ -316,7 +317,10 @@ class _CropGridViewerState extends State<CropGridViewer> {
 
               return Stack(
                 children: [
-                  _paint(),
+                  IgnorePointer(
+                    ignoring: widget.ignoring,
+                    child: _paint(),
+                  ),
                   if (widget.showGrid)
                     IgnorePointer(
                       ignoring: widget.ignoring,
