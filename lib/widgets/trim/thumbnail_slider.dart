@@ -79,6 +79,8 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
 
     List<Uint8List> _byteList = [];
 
+    print(">>>>>> PATH: $path");
+
     for (int i = 0; i < _thumbnails; i++) {
       Uint8List _bytes = await VideoThumbnail.thumbnailData(
         imageFormat: ImageFormat.JPEG,
