@@ -365,6 +365,8 @@ class VideoEditorController extends ChangeNotifier {
         ' -i $videoPath ${customInstruction ?? ""} $filter ${_getPreset(preset)} $trim'
         ' -af volume=$vol -y $outputPath';
 
+    print(">>>>>>> COMMAND: $execute");
+
     if (progressCallback != null)
       _config.enableStatisticsCallback(progressCallback);
     final int code = await _ffmpeg.execute(execute);
