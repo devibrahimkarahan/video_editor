@@ -13,22 +13,36 @@ class TrimSliderPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final double width = style.lineWidth;
     final double dotWidth = style.dotWidth;
-    final double halfWidth = width / 2;
     final double halfHeight = rect.height / 2;
     final Paint dotPaint = Paint()..color = style.dotColor;
     final Paint linePaint = Paint()..color = style.lineColor;
-    final Paint progressPaint = Paint()..color = style.positionLineColor;
     final Paint background = Paint()..color = Colors.white.withOpacity(0.5);
 
+    var scrubberPaintOutside = Paint()
+      ..color = Colors.black
+      ..strokeWidth = 2
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    var scrubberPaintInner = Paint()
+      ..color = Colors.white
+      ..strokeWidth = 3.0 + 3
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+    canvas.drawLine(
+      Offset(position + 2, 5),
+      Offset(position + 2, -5) + Offset(0, size.height),
+      scrubberPaintInner,
+    );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromPoints(
-          Offset(position - halfWidth / 2, 0.0),
-          Offset(position + halfWidth / 2, size.height),
+          Offset(position, 1),
+          Offset(position + 4, -1) + Offset(0, size.height),
         ),
-        Radius.circular(2),
+        Radius.circular(10),
       ),
-      progressPaint,
+      scrubberPaintOutside,
     );
 
     if (previewMode == null || !previewMode) {
