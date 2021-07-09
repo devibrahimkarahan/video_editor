@@ -16,9 +16,12 @@ class TrimSlider extends StatefulWidget {
     this.height = 60,
     this.quality = 25,
     this.maxDuration,
+    this.lineColor,
     this.previewMode = false,
     this.allowTrimPositionChange = true,
   }) : super(key: key);
+
+  final Color lineColor;
 
   ///**Quality of thumbnails:** 0 is the worst quality and 100 is the highest quality.
   final int quality;
@@ -233,6 +236,7 @@ class _TrimSliderState extends State<TrimSlider> {
                 painter: TrimSliderPainter(
                   _rect,
                   _getTrimPosition(),
+                  lineColor: widget.lineColor,
                   style: widget.controller.trimStyle,
                   previewMode: widget.previewMode,
                 ),

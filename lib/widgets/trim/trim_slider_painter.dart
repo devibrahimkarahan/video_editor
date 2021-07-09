@@ -2,11 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:video_editor/utils/trim_style.dart';
 
 class TrimSliderPainter extends CustomPainter {
-  TrimSliderPainter(this.rect, this.position, {this.style, this.previewMode});
+  TrimSliderPainter(
+    this.rect,
+    this.position, {
+    this.lineColor,
+    this.style,
+    this.previewMode,
+  });
 
   final Rect rect;
   final double position;
   final TrimSliderStyle style;
+  final Color lineColor;
   final bool previewMode;
 
   @override
@@ -15,7 +22,7 @@ class TrimSliderPainter extends CustomPainter {
     final double dotWidth = style.dotWidth;
     final double halfHeight = rect.height / 2;
     final Paint dotPaint = Paint()..color = style.dotColor;
-    final Paint linePaint = Paint()..color = style.lineColor;
+    final Paint linePaint = Paint()..color = lineColor ?? style.lineColor;
     final Paint background = Paint()..color = Colors.white.withOpacity(0.5);
 
     var scrubberPaintOutside = Paint()
