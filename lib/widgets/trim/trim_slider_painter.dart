@@ -10,19 +10,19 @@ class TrimSliderPainter extends CustomPainter {
     this.previewMode,
   });
 
-  final Rect rect;
+  final Rect? rect;
   final double position;
-  final TrimSliderStyle style;
-  final Color lineColor;
-  final bool previewMode;
+  final TrimSliderStyle? style;
+  final Color? lineColor;
+  final bool? previewMode;
 
   @override
   void paint(Canvas canvas, Size size) {
-    final double width = style.lineWidth;
-    final double dotWidth = style.dotWidth;
-    final double halfHeight = rect.height / 2;
-    final Paint dotPaint = Paint()..color = style.dotColor;
-    final Paint linePaint = Paint()..color = lineColor ?? style.lineColor;
+    final double width = style!.lineWidth;
+    final double dotWidth = style!.dotWidth;
+    final double halfHeight = rect!.height / 2;
+    final Paint dotPaint = Paint()..color = style!.dotColor;
+    final Paint linePaint = Paint()..color = lineColor ?? style!.lineColor;
     final Paint background = Paint()..color = Colors.white.withOpacity(0.5);
 
     var scrubberPaintOutside = Paint()
@@ -52,12 +52,12 @@ class TrimSliderPainter extends CustomPainter {
       scrubberPaintOutside,
     );
 
-    if (previewMode == null || !previewMode) {
+    if (previewMode == null || !previewMode!) {
       //BACKGROUND LEFT
       canvas.drawRect(
         Rect.fromPoints(
           Offset.zero,
-          rect.bottomLeft,
+          rect!.bottomLeft,
         ),
         background,
       );
@@ -65,7 +65,7 @@ class TrimSliderPainter extends CustomPainter {
       //BACKGROUND RIGHT
       canvas.drawRect(
         Rect.fromPoints(
-          rect.topRight - Offset(12, 0),
+          rect!.topRight - Offset(12, 0),
           Offset(size.width, size.height),
         ),
         background,
@@ -73,11 +73,11 @@ class TrimSliderPainter extends CustomPainter {
 
       canvas.drawRRect(
         RRect.fromRectAndRadius(
-          Rect.fromPoints(rect.topLeft, rect.bottomRight),
+          Rect.fromPoints(rect!.topLeft, rect!.bottomRight),
           Radius.circular(2),
         ),
         Paint()
-          ..color = style.lineColor
+          ..color = style!.lineColor
           ..style = PaintingStyle.stroke
           ..strokeWidth = dotWidth,
       );
@@ -85,7 +85,7 @@ class TrimSliderPainter extends CustomPainter {
       //LEFT LINE
       canvas.drawRRect(
         RRect.fromRectAndCorners(
-          Rect.fromPoints(rect.bottomLeft - Offset(-width, 0), rect.topLeft),
+          Rect.fromPoints(rect!.bottomLeft - Offset(-width, 0), rect!.topLeft),
           bottomLeft: Radius.circular(2),
           topLeft: Radius.circular(2),
         ),
@@ -94,8 +94,8 @@ class TrimSliderPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromPoints(
-            rect.centerLeft + Offset(dotWidth * 1.5, halfHeight / 2),
-            rect.centerLeft - Offset(-dotWidth, halfHeight / 2),
+            rect!.centerLeft + Offset(dotWidth * 1.5, halfHeight / 2),
+            rect!.centerLeft - Offset(-dotWidth, halfHeight / 2),
           ),
           Radius.circular(6),
         ),
@@ -105,7 +105,7 @@ class TrimSliderPainter extends CustomPainter {
       //RIGHT LINE
       canvas.drawRRect(
         RRect.fromRectAndCorners(
-          Rect.fromPoints(rect.bottomRight - Offset(width, 0), rect.topRight),
+          Rect.fromPoints(rect!.bottomRight - Offset(width, 0), rect!.topRight),
           bottomRight: Radius.circular(2),
           topRight: Radius.circular(2),
         ),
@@ -114,8 +114,8 @@ class TrimSliderPainter extends CustomPainter {
       canvas.drawRRect(
         RRect.fromRectAndRadius(
           Rect.fromPoints(
-            rect.centerRight + Offset(-dotWidth * 1.5, halfHeight / 2),
-            rect.centerRight - Offset(dotWidth, halfHeight / 2),
+            rect!.centerRight + Offset(-dotWidth * 1.5, halfHeight / 2),
+            rect!.centerRight - Offset(dotWidth, halfHeight / 2),
           ),
           Radius.circular(6),
         ),

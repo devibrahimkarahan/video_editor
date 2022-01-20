@@ -326,11 +326,6 @@ class _CropScreenState extends State<CropScreen> {
             Expanded(
               child: CropGridViewer(
                 controller: widget.controller,
-                onChangeCrop: (min, max) {
-                  _minCrop = min;
-                  _maxCrop = max;
-                  print("$min $max");
-                },
               ),
             ),
             SizedBox(height: 15),

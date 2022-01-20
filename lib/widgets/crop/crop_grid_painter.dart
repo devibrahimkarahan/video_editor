@@ -10,7 +10,7 @@ class CropGridPainter extends CustomPainter {
   });
 
   final Rect rect;
-  final CropGridStyle style;
+  final CropGridStyle? style;
   final bool showGrid, showCenterRects;
 
   @override
@@ -24,7 +24,7 @@ class CropGridPainter extends CustomPainter {
 
   void _drawBackground(Canvas canvas, Size size) {
     final Paint paint = Paint()
-      ..color = showGrid ? style.croppingBackground : style.background;
+      ..color = showGrid ? style!.croppingBackground : style!.background;
 
     canvas.drawRect(Rect.fromLTWH(0, 0, size.width, rect.topRight.dy), paint);
     canvas.drawRect(
@@ -37,10 +37,10 @@ class CropGridPainter extends CustomPainter {
   }
 
   void _drawGrid(Canvas canvas, Size size) {
-    final int gridSize = style.gridSize;
+    final int gridSize = style!.gridSize;
     final Paint paint = Paint()
-      ..strokeWidth = style.gridLineWidth
-      ..color = style.gridLineColor;
+      ..strokeWidth = style!.gridLineWidth
+      ..color = style!.gridLineColor;
 
     for (int i = 1; i < gridSize; i++) {
       double rowDy = rect.topLeft.dy + (rect.height / gridSize) * i;
@@ -59,9 +59,9 @@ class CropGridPainter extends CustomPainter {
   }
 
   void _drawBoundaries(Canvas canvas, Size size) {
-    final double width = style.boundariesWidth;
-    final double lenght = style.boundariesLength;
-    final Paint paint = Paint()..color = style.boundariesColor;
+    final double width = style!.boundariesWidth;
+    final double lenght = style!.boundariesLength;
+    final Paint paint = Paint()..color = style!.boundariesColor;
 
     //----//
     //EDGE//
