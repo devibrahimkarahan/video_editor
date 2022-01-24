@@ -36,7 +36,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
   int _thumbnails = 8;
 
   Size _layout = Size.zero;
-  Stream<List<Uint8List>>? _stream;
+  Stream<List<Uint8List?>>? _stream;
 
   StreamSubscription? _subscription;
 
@@ -72,7 +72,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
     );
   }
 
-  Stream<List<Uint8List>> _generateThumbnails() async* {
+  Stream<List<Uint8List?>> _generateThumbnails() async* {
     final String path = widget.controller.file.path;
     final ms = widget.controller.video.value.duration.inMilliseconds;
     final double eachPart = ms / _thumbnails;
@@ -125,7 +125,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
 
       return StreamBuilder(
         stream: _stream,
-        builder: (_, AsyncSnapshot<List<Uint8List>> snapshot) {
+        builder: (_, AsyncSnapshot<List<Uint8List?>> snapshot) {
           final data = snapshot.data;
           return snapshot.hasData
               ? ListView.builder(
@@ -145,7 +145,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
                             height: _layout.height,
                             width: _layout.width,
                             child: Image(
-                              image: MemoryImage(data[index]),
+                              image: MemoryImage(data[index]!),
                               width: _layout.width,
                               height: _layout.height,
                               alignment: Alignment.topLeft,
