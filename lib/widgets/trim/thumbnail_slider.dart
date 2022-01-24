@@ -90,7 +90,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
       );
       _byteList.add(_bytes);
 
-      yield _byteList as List<Uint8List>;
+      yield _byteList;
     }
   }
 
