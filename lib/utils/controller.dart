@@ -1,13 +1,15 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:ffmpeg_kit_flutter_full/ffmpeg_kit.dart';
+import 'package:ffmpeg_kit_flutter_full/ffmpeg_kit_config.dart';
+import 'package:ffmpeg_kit_flutter_full/ffprobe_kit.dart';
+import 'package:ffmpeg_kit_flutter_full/media_information.dart';
+import 'package:ffmpeg_kit_flutter_full/return_code.dart';
+import 'package:ffmpeg_kit_flutter_full/statistics.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
-import 'package:flutter_ffmpeg/statistics.dart';
 import 'package:path/path.dart' as path;
 import 'package:path_provider/path_provider.dart';
-import 'package:video_editor/utils/crop_style.dart';
-import 'package:video_editor/utils/trim_style.dart';
 import 'package:video_editor/video_editor.dart';
 import 'package:video_player/video_player.dart';
 
@@ -54,10 +56,10 @@ class VideoEditorController extends ChangeNotifier {
 
   ///Constructs a [VideoEditorController] that edits a video from a file.
   VideoEditorController.file(
-    this.file, {
-    TrimSliderStyle? trimStyle,
-    CropGridStyle? cropStyle,
-  })  : assert(file != null),
+      this.file, {
+        TrimSliderStyle? trimStyle,
+        CropGridStyle? cropStyle,
+      })  : assert(file != null),
         _video = VideoPlayerController.file(
           file,
           videoPlayerOptions: VideoPlayerOptions(mixWithOthers: true),
@@ -65,9 +67,6 @@ class VideoEditorController extends ChangeNotifier {
         this.cropStyle = cropStyle ?? CropGridStyle(),
         this.trimStyle = trimStyle ?? TrimSliderStyle(),
         this.thumbnailController = StreamController.broadcast();
-
-  FlutterFFmpeg _ffmpeg = FlutterFFmpeg();
-  FlutterFFprobe _ffprobe = FlutterFFprobe();
 
   int _rotation = 0;
   bool isTrimming = false;
@@ -203,8 +202,8 @@ class VideoEditorController extends ChangeNotifier {
   Future<void> dispose() async {
     if (_video.value.isPlaying) await _video.pause();
     _video.removeListener(_videoListener);
-    final executions = await _ffmpeg.listExecutions();
-    if (executions.length > 0) await _ffmpeg.cancel();
+    final executions = await FFmpegKit.listSessions();
+    if (executions.length > 0) await FFmpegKit.cancel();
     _video.dispose();
     await thumbnailController.close();
     super.dispose();
@@ -232,10 +231,11 @@ class VideoEditorController extends ChangeNotifier {
     if (startdy < 0) startdy = 0;
     // return "crop=${enddx - startdx}:${enddy - startdy}:$startdx:$startdy";
 
-    final mediaInfo = await _ffprobe.getMediaInformation(file.path);
+    final mediaInfoSession = await FFprobeKit.getMediaInformation(file.path);
+    final mediaInfo = mediaInfoSession.getMediaInformation();
     var rotate;
     try {
-      rotate = mediaInfo.getAllProperties()["streams"][0]["tags"]["rotate"];
+      rotate = mediaInfo?.getAllProperties()?["streams"][0]["tags"]["rotate"];
     } catch (e) {
       rotate = null;
     }
@@ -293,15 +293,16 @@ class VideoEditorController extends ChangeNotifier {
   //------------//
   Future<void> _getVideoDimensions() async {
     if (!(_videoHeight > 0 && _videoWidth > 0)) {
-      final info = await _ffprobe.getMediaInformation(file.path);
-      final streams = info.getStreams();
+      final infoSession = await FFprobeKit.getMediaInformation(file.path);
+      final MediaInformation? info = infoSession.getMediaInformation();
+      final streams = info?.getStreams();
       int _height = 0;
       int _width = 0;
 
       if (streams != null && streams.length > 0) {
         for (var stream in streams) {
-          final width = stream.getAllProperties()['width'];
-          final height = stream.getAllProperties()['height'];
+          final width = stream.getAllProperties()?['width'];
+          final height = stream.getAllProperties()?['height'];
           if (width != null && width > _width) _width = width;
           if (height != null && height > _height) _height = height;
         }
@@ -333,7 +334,6 @@ class VideoEditorController extends ChangeNotifier {
     void Function(Statistics)? progressCallback,
     VideoExportPreset preset = VideoExportPreset.none,
   }) async {
-    final FlutterFFmpegConfig _config = FlutterFFmpegConfig();
     final String tempPath = (await getTemporaryDirectory()).path;
     final String videoPath = file.path;
     if (name == null) name = path.basename(videoPath).split('.')[0];
@@ -347,11 +347,11 @@ class VideoEditorController extends ChangeNotifier {
         ? "-ss $_trimStart -to $_trimEnd"
         : "";
     final String crop =
-        minCrop >= _min && maxCrop <= _max ? await _getCrop() : "";
+    minCrop >= _min && maxCrop <= _max ? await _getCrop() : "";
     final String rotation =
-        _rotation >= 360 || _rotation <= 0 ? "" : _getRotation();
+    _rotation >= 360 || _rotation <= 0 ? "" : _getRotation();
     final String scaleInstruction =
-        scale == 1.0 ? "" : "scale=iw*$scale:ih*$scale";
+    scale == 1.0 ? "" : "scale=iw*$scale:ih*$scale";
 
     //----------------//
     //VALIDATE FILTERS//
@@ -359,7 +359,7 @@ class VideoEditorController extends ChangeNotifier {
     final List<String> filters = [crop, scaleInstruction, rotation, gif];
     filters.removeWhere((item) => item.isEmpty);
     final String filter =
-        filters.isNotEmpty ? "-filter:v " + filters.join(",") : "";
+    filters.isNotEmpty ? "-filter:v " + filters.join(",") : "";
     final vol = _video.value.volume;
     final String execute =
         ' -i $videoPath ${customInstruction ?? ""} $filter ${_getPreset(preset)} $trim'
@@ -368,17 +368,18 @@ class VideoEditorController extends ChangeNotifier {
     print(">>>>>>> COMMAND: $execute");
 
     if (progressCallback != null)
-      _config.enableStatisticsCallback(progressCallback);
-    final int code = await _ffmpeg.execute(execute);
+      FFmpegKitConfig.enableStatisticsCallback(progressCallback);
+    var session = await FFmpegKit.execute(execute);
+    final ReturnCode? code = await session.getReturnCode();
     // _config.enableStatisticsCallback(null);
 
     //------//
     //RESULT//
     //------//
-    if (code == 0) {
+    if (code!.isValueSuccess()) {
       print("SUCCESS EXPORT AT $outputPath");
       return File(outputPath);
-    } else if (code == 255) {
+    } else if (code.isValueCancel()) {
       print("USER CANCEL EXPORT");
       return null;
     } else {

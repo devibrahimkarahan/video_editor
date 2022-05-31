@@ -102,7 +102,7 @@ class _VideoEditorState extends State<VideoEditor> {
       progressCallback: (statics) {
         if (_controller.video != null)
           _exportingProgress.value =
-              statics.time / _controller.video.value.duration.inMilliseconds;
+              statics.getTime() / _controller.video.value.duration.inMilliseconds;
       },
     );
     _isExporting.value = false;

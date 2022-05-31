@@ -201,7 +201,7 @@ class _TrimSliderState extends State<TrimSlider> {
   Duration _getDurationDiff(double left, double width) {
     final double min = left / math.max(_layout.width, 1);
     final double max = (left + width) / math.max(_layout.width, 1);
-    final Duration duration = _controller?.value?.duration ?? Duration.zero;
+    final Duration duration = _controller?.value.duration ?? Duration.zero;
     return (duration * max) - (duration * min);
   }
 
