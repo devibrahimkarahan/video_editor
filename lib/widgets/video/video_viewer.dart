@@ -4,14 +4,14 @@ import 'package:video_player/video_player.dart';
 
 class VideoViewer extends StatefulWidget {
   VideoViewer({
-    Key key,
-    @required this.controller,
+    Key? key,
+    required this.controller,
     this.child,
     this.ignoring = false,
   }) : super(key: key);
 
-  final VideoEditorController controller;
-  final Widget child;
+  final VideoEditorController? controller;
+  final Widget? child;
   final bool ignoring;
 
   @override
@@ -19,11 +19,11 @@ class VideoViewer extends StatefulWidget {
 }
 
 class _VideoViewerState extends State<VideoViewer> {
-  VideoPlayerController _controller;
+  late VideoPlayerController _controller;
 
   @override
   void initState() {
-    _controller = widget.controller.video;
+    _controller = widget.controller!.video;
     super.initState();
   }
 

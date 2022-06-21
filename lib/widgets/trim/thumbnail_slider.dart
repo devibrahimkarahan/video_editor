@@ -9,7 +9,7 @@ import 'package:video_thumbnail/video_thumbnail.dart';
 
 class ThumbnailSlider extends StatefulWidget {
   ThumbnailSlider({
-    @required this.controller,
+    required this.controller,
     this.height = 60,
     this.quality = 10,
   }) : assert(controller != null);
@@ -36,9 +36,9 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
   int _thumbnails = 8;
 
   Size _layout = Size.zero;
-  Stream<List<Uint8List>> _stream;
+  Stream<List<Uint8List?>>? _stream;
 
-  StreamSubscription _subscription;
+  StreamSubscription? _subscription;
 
   @override
   void initState() {
@@ -72,17 +72,17 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
     );
   }
 
-  Stream<List<Uint8List>> _generateThumbnails() async* {
+  Stream<List<Uint8List?>> _generateThumbnails() async* {
     final String path = widget.controller.file.path;
     final ms = widget.controller.video.value.duration.inMilliseconds;
     final double eachPart = ms / _thumbnails;
 
-    List<Uint8List> _byteList = [];
+    List<Uint8List?> _byteList = [];
 
     print(">>>>>> PATH: $path");
 
     for (int i = 0; i < _thumbnails; i++) {
-      Uint8List _bytes = await VideoThumbnail.thumbnailData(
+      Uint8List? _bytes = await VideoThumbnail.thumbnailData(
         imageFormat: ImageFormat.JPEG,
         video: path,
         timeMs: (eachPart * i).toInt(),
@@ -125,14 +125,14 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
 
       return StreamBuilder(
         stream: _stream,
-        builder: (_, AsyncSnapshot<List<Uint8List>> snapshot) {
+        builder: (_, AsyncSnapshot<List<Uint8List?>> snapshot) {
           final data = snapshot.data;
           return snapshot.hasData
               ? ListView.builder(
                   scrollDirection: Axis.horizontal,
                   padding: EdgeInsets.zero,
                   physics: NeverScrollableScrollPhysics(),
-                  itemCount: data.length,
+                  itemCount: data!.length,
                   itemBuilder: (_, int index) {
                     if (data[index] == null) return SizedBox();
                     return ValueListenableBuilder(
@@ -145,7 +145,7 @@ class _ThumbnailSliderState extends State<ThumbnailSlider> {
                             height: _layout.height,
                             width: _layout.width,
                             child: Image(
-                              image: MemoryImage(data[index]),
+                              image: MemoryImage(data[index]!),
                               width: _layout.width,
                               height: _layout.height,
                               alignment: Alignment.topLeft,

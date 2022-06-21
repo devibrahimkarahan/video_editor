@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class TrimSliderStyle {
   ///Style for [TrimSlider]. It's use on VideoEditorController
   TrimSliderStyle({
-    Color background,
+    Color? background,
     this.dotWidth = 4,
     this.lineWidth = 12,
     this.dotColor = Colors.white,
