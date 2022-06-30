@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:video_editor/utils/trim_style.dart';
 
@@ -33,23 +35,49 @@ class TrimSliderPainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
+
+    var scrubberPaintShadow = Paint()
+      ..color = Colors.black.withOpacity(0.2)
+      ..strokeWidth = (lineWidth ?? 3.0 + 3)
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.butt
+      ..maskFilter =MaskFilter.blur(BlurStyle.outer, 2);
+
+    canvas.drawLine(
+      Offset(position + 2, 0), //50 5
+      Offset(position + 2, -0) + Offset(0, size.height),
+      scrubberPaintShadow,
+    );
+
     var scrubberPaintInner = Paint()
-      ..color = Colors.blue
+      ..color = Colors.white
       ..strokeWidth = lineWidth ?? 3.0 + 3
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.butt;
+
     canvas.drawLine(
-      Offset(position + 2, 2),
-      Offset(position + 2, -2) + Offset(0, size.height),
+      Offset(position + 2, 0), //50 5
+      Offset(position + 2, -0) + Offset(0, size.height),
       scrubberPaintInner,
     );
+    // Path shadowPath = Path();
+    // shadowPath.moveTo(position + 2, 0);
+    // shadowPath.moveTo(position + 2, size.height);
+    // shadowPath.close();
+    // canvas.drawPath(shadowPath, scrubberPaintInner);
+    //
+    //
+    // canvas.drawShadow(shadowPath, Colors.black, 2.0, true);
+
+
+
     // canvas.drawRRect(
     //   RRect.fromRectAndRadius(
     //     Rect.fromPoints(
     //       Offset(position, 1),
     //       Offset(position + 4, -1) + Offset(0, size.height),
     //     ),
-    //     Radius.circular(10),
+    //     Radius.circular(0),
     //   ),
     //   scrubberPaintOutside,
     // );
