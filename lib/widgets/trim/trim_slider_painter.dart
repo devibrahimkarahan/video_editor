@@ -5,6 +5,7 @@ class TrimSliderPainter extends CustomPainter {
   TrimSliderPainter(
     this.rect,
     this.position, {
+    this.lineWidth,
     this.lineColor,
     this.style,
     this.previewMode,
@@ -14,6 +15,7 @@ class TrimSliderPainter extends CustomPainter {
   final double position;
   final TrimSliderStyle? style;
   final Color? lineColor;
+  final double? lineWidth;
   final bool? previewMode;
 
   @override
@@ -32,25 +34,25 @@ class TrimSliderPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round;
 
     var scrubberPaintInner = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3.0 + 3
+      ..color = Colors.blue
+      ..strokeWidth = lineWidth ?? 3.0 + 3
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
+      ..strokeCap = StrokeCap.butt;
     canvas.drawLine(
-      Offset(position + 2, 5),
-      Offset(position + 2, -5) + Offset(0, size.height),
+      Offset(position + 2, 2),
+      Offset(position + 2, -2) + Offset(0, size.height),
       scrubberPaintInner,
     );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromPoints(
-          Offset(position, 1),
-          Offset(position + 4, -1) + Offset(0, size.height),
-        ),
-        Radius.circular(10),
-      ),
-      scrubberPaintOutside,
-    );
+    // canvas.drawRRect(
+    //   RRect.fromRectAndRadius(
+    //     Rect.fromPoints(
+    //       Offset(position, 1),
+    //       Offset(position + 4, -1) + Offset(0, size.height),
+    //     ),
+    //     Radius.circular(10),
+    //   ),
+    //   scrubberPaintOutside,
+    // );
 
     if (previewMode == null || !previewMode!) {
       //BACKGROUND LEFT
