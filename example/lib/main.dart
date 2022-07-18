@@ -125,7 +125,7 @@ class _VideoEditorState extends State<VideoEditor> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.orange,
       body: _controller.initialized
           ? AnimatedBuilder(
               animation: _controller,
@@ -258,7 +258,11 @@ class _VideoEditorState extends State<VideoEditor> {
       Container(
         height: height,
         margin: Margin.all(height / 4),
+        // child: ThumbnailSlider(controller: _controller,)
         child: TrimSlider(
+          allowTrimPositionChange: true,
+          lineWidth: 4,
+          previewMode: true,
           controller: _controller,
           height: height,
         ),
@@ -318,7 +322,7 @@ class _CropScreenState extends State<CropScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: SafeArea(
         child: Padding(
           padding: Margin.all(30),

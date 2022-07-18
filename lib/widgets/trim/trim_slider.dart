@@ -15,6 +15,7 @@ class TrimSlider extends StatefulWidget {
     required this.controller,
     this.height = 60,
     this.quality = 25,
+    this.lineWidth,
     this.maxDuration,
     this.lineColor,
     this.previewMode = false,
@@ -28,6 +29,8 @@ class TrimSlider extends StatefulWidget {
 
   ///It is the height of the thumbnails
   final double height;
+
+  final double? lineWidth;
 
   ///The max duration that can be trim video.
   final Duration? maxDuration;
@@ -58,7 +61,7 @@ class _TrimSliderState extends State<TrimSlider> {
     _maxDuration = widget.maxDuration == null || _maxDuration! > duration
         ? duration
         : widget.maxDuration;
-    WidgetsBinding.instance!.addPostFrameCallback((timeStamp) {
+    WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
       final minT = widget.controller.minTrim;
       final maxT = widget.controller.maxTrim;
       if (minT == 0.0 && maxT == 1.0) return;
@@ -236,6 +239,7 @@ class _TrimSliderState extends State<TrimSlider> {
                 painter: TrimSliderPainter(
                   _rect,
                   _getTrimPosition(),
+                  lineWidth: widget.lineWidth,
                   lineColor: widget.lineColor,
                   style: widget.controller.trimStyle,
                   previewMode: widget.previewMode,
